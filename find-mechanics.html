@@ -1,0 +1,552 @@
+<!-- this is my find-mechanics.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find Nearby Mechanics - InstaMech</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4cc9f0;
+      --dark: #212529;
+      --light: #f8f9fa;
+      --danger: #ef233c;
+      --success: #4ad66d;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+    }
+    
+    /* Navigation */
+    .navbar {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 1rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .logo i {
+      color: var(--primary);
+      font-size: 1.8rem;
+    }
+    
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+    
+    .nav-links a {
+      text-decoration: none;
+      color: var(--dark);
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+    
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+    
+    .auth-section {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Main Content */
+    .container {
+      padding: 2rem 5%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .page-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .page-header h1 {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    
+    .page-header p {
+      font-size: 1.1rem;
+      color: #666;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    /* Map Section */
+    .map-container {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .map-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .map-header h2 {
+      font-size: 1.5rem;
+      color: var(--dark);
+    }
+    
+    #map {
+      height: 500px;
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border: 1px solid #eee;
+    }
+    
+    /* Status Indicator */
+    #status {
+      padding: 1rem;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      margin: 1rem 0;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    #status i {
+      font-size: 1.2rem;
+    }
+    
+    /* Mechanics List */
+    .mechanics-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .mechanic-card {
+      background-color: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .mechanic-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mechanic-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      gap: 1rem;
+    }
+    
+    .mechanic-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    
+    .mechanic-info h3 {
+      font-size: 1.2rem;
+      margin-bottom: 0.2rem;
+    }
+    
+    .mechanic-rating {
+      color: #ffc107;
+      margin-bottom: 0.5rem;
+    }
+    
+    .mechanic-details {
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    
+    .mechanic-details p {
+      margin-bottom: 0.3rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .mechanic-actions {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+    }
+    
+    .btn-outline {
+      background-color: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .map-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      
+      .nav-links {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="logo">
+      <i class="fas fa-car"></i>
+      <h1>InstaMech</h1>
+    </div>
+    
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="find-mechanics.html" class="active">Find Mechanics</a>
+      <a href="#">How It Works</a>
+      <a href="#">Pricing</a>
+      <a href="#">Contact</a>
+    </div>
+    
+    <div class="auth-section" id="auth-section">
+      <!-- Dynamic content will be inserted here by JavaScript -->
+    </div>
+  </nav>
+  
+  <!-- Main Content -->
+  <div class="container">
+    <div class="page-header">
+      <h1>Find Nearby Mechanics</h1>
+      <p>Connect with certified mechanics in your area for fast, reliable service when you need it most.</p>
+    </div>
+    
+    <div class="map-container">
+      <div class="map-header">
+        <h2><i class="fas fa-map-marked-alt"></i> Mechanics Near You</h2>
+        <button id="findMechanicBtn" class="btn btn-primary">
+          <i class="fas fa-search-location"></i> Find Mechanics
+        </button>
+      </div>
+      
+      <p id="status">
+        <i class="fas fa-info-circle"></i> Click the button above to locate nearby mechanics
+      </p>
+      
+      <div id="map"></div>
+    </div>
+    
+    <h2 style="margin-bottom: 1rem;"><i class="fas fa-users"></i> Available Mechanics</h2>
+    <div class="mechanics-list" id="mechanicsList">
+      <!-- Mechanics will be dynamically inserted here -->
+      <div class="mechanic-card" style="text-align: center; padding: 2rem;">
+        <i class="fas fa-search" style="font-size: 2rem; color: #ccc; margin-bottom: 1rem;"></i>
+        <p>Find mechanics in your area to see available professionals</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore-compat.js"></script>
+
+  <!-- Your Firebase Config -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBeuahpyrqwsjnq-gRhbZBrjBYndpgW_zM",
+      authDomain: "instamech-43e72.firebaseapp.com",
+      projectId: "instamech-43e72",
+      storageBucket: "instamech-43e72.appspot.com",
+      messagingSenderId: "228912429615",
+      appId: "1:228912429615:web:64abdd4f005f3303d2e4da",
+      measurementId: "G-WXPZ7484GZ"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+  </script>
+
+  <!-- Leaflet.js -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    let map, userMarker;
+    const statusElement = document.getElementById("status");
+    const mechanicsList = document.getElementById("mechanicsList");
+
+    function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = deg2rad(lat2 - lat1);
+      const dLon = deg2rad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function deg2rad(deg) {
+      return deg * (Math.PI / 180);
+    }
+
+    function updateStatus(icon, color, message) {
+      statusElement.innerHTML = `<i class="fas fa-${icon}" style="color: ${color}"></i> ${message}`;
+      statusElement.style.backgroundColor = `${color}10`;
+      statusElement.style.borderLeft = `3px solid ${color}`;
+    }
+
+    function createMechanicCard(mechanic, distance) {
+      const card = document.createElement("div");
+      card.className = "mechanic-card";
+      
+      // Generate random rating (for demo purposes)
+      const rating = (Math.random() * 1 + 4).toFixed(1);
+      const ratingStars = Math.floor(rating);
+      const hasHalfStar = rating % 1 >= 0.5;
+      
+      let starsHtml = "";
+      for (let i = 0; i < 5; i++) {
+        if (i < ratingStars) {
+          starsHtml += '<i class="fas fa-star"></i>';
+        } else if (i === ratingStars && hasHalfStar) {
+          starsHtml += '<i class="fas fa-star-half-alt"></i>';
+        } else {
+          starsHtml += '<i class="far fa-star"></i>';
+        }
+      }
+      
+      // Generate random response time (15-45 mins)
+      const responseTime = Math.floor(Math.random() * 30) + 15;
+      
+      card.innerHTML = `
+        <div class="mechanic-header">
+          <div class="mechanic-avatar">${mechanic.name.charAt(0)}</div>
+          <div class="mechanic-info">
+            <h3>${mechanic.name}</h3>
+            <div class="mechanic-rating">
+              ${starsHtml} <span style="color: #666; font-size: 0.9rem;">${rating}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mechanic-details">
+          <p><i class="fas fa-phone"></i> ${mechanic.phone || 'Not provided'}</p>
+          <p><i class="fas fa-map-marker-alt"></i> ${distance.toFixed(1)} km away</p>
+          <p><i class="fas fa-clock"></i> ~${responseTime} min response time</p>
+        </div>
+        
+        <div class="mechanic-actions">
+          <button class="btn btn-primary btn-sm" onclick="bookMechanic('${mechanic.id || ''}')">
+            <i class="fas fa-calendar-check"></i> Book Now
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="messageMechanic('${mechanic.id || ''}')">
+            <i class="fas fa-comment"></i> Message
+          </button>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    document.getElementById("findMechanicBtn").addEventListener("click", () => {
+      if (navigator.geolocation) {
+        updateStatus("compass", "#4361ee", "Locating your position...");
+
+        navigator.geolocation.getCurrentPosition(async (position) => {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+
+          updateStatus("check-circle", "#4ad66d", "Location found. Loading mechanics...");
+
+          // Initialize map if not already done
+          if (!map) {
+            map = L.map('map').setView([userLat, userLng], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+          }
+
+          // Update user marker
+          if (!userMarker) {
+            userMarker = L.marker([userLat, userLng], {
+              icon: L.divIcon({
+                className: 'user-marker',
+                html: '<div style="background-color: #4361ee; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;"><i class="fas fa-user"></i></div>',
+                iconSize: [30, 30]
+              })
+            }).addTo(map)
+              .bindPopup("<b>Your Location</b>").openPopup();
+          } else {
+            userMarker.setLatLng([userLat, userLng]);
+          }
+
+          // Get mechanics from Firestore
+          const snapshot = await db.collection("mechanics").get();
+          let found = false;
+          
+          // Clear previous mechanics
+          mechanicsList.innerHTML = '';
+          
+          snapshot.forEach(doc => {
+            const mech = doc.data();
+            if (mech.lat && mech.lng) {
+              const distance = getDistanceFromLatLonInKm(userLat, userLng, mech.lat, mech.lng);
+              if (distance <= 10) {
+                found = true;
+                
+                // Add marker to map
+                const mechanicMarker = L.marker([mech.lat, mech.lng], {
+                  icon: L.divIcon({
+                    className: 'mechanic-marker',
+                    html: '<div style="background-color: #ef233c; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;"><i class="fas fa-wrench"></i></div>',
+                    iconSize: [30, 30]
+                  })
+                }).addTo(map)
+                  .bindPopup(`<b>${mech.name}</b><br>📞 ${mech.phone || 'Not provided'}<br>📍 ${distance.toFixed(1)} km away`);
+                
+                // Add to mechanics list
+                const mechanicWithId = { ...mech, id: doc.id };
+                mechanicsList.appendChild(createMechanicCard(mechanicWithId, distance));
+              }
+            }
+          });
+
+          if (found) {
+            updateStatus("check-circle", "#4ad66d", `Found ${mechanicsList.children.length} mechanics nearby`);
+          } else {
+            updateStatus("exclamation-triangle", "#ffc107", "No mechanics found within 10 km");
+            mechanicsList.innerHTML = `
+              <div class="mechanic-card" style="text-align: center; padding: 2rem;">
+                <i class="fas fa-meh" style="font-size: 2rem; color: #ffc107; margin-bottom: 1rem;"></i>
+                <h3>No Mechanics Found</h3>
+                <p>We couldn't find any mechanics within 10 km of your location.</p>
+                <button class="btn btn-outline" style="margin-top: 1rem;">
+                  <i class="fas fa-bell"></i> Notify Me When Available
+                </button>
+              </div>
+            `;
+          }
+
+        }, (error) => {
+          console.error("Geolocation error:", error);
+          updateStatus("times-circle", "#ef233c", "Error getting location: " + error.message);
+        });
+      } else {
+        updateStatus("times-circle", "#ef233c", "Geolocation not supported by your browser");
+      }
+    });
+    
+    // Dummy functions for demo purposes
+    function bookMechanic(mechanicId) {
+      alert(`Booking request sent to mechanic ${mechanicId}`);
+    }
+    
+    function messageMechanic(mechanicId) {
+      alert(`Messaging mechanic ${mechanicId}`);
+    }
+    
+    // Initialize auth section
+    const authSection = document.getElementById("auth-section");
+    
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        const initials = user.displayName ? 
+          user.displayName.split(' ').map(n => n[0]).join('') : 
+          user.email[0].toUpperCase();
+        
+        authSection.innerHTML = `
+          <div class="profile-icon" style="cursor: pointer;" onclick="window.location.href='profile.html'">${initials}</div>
+        `;
+      } else {
+        authSection.innerHTML = `
+          <a href="login.html" class="btn btn-outline">Login</a>
+          <a href="register.html" class="btn btn-primary">Sign Up</a>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

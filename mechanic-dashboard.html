@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mechanic Dashboard | InstaMech</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4cc9f0;
+      --dark: #212529;
+      --light: #f8f9fa;
+      --danger: #ef233c;
+      --success: #4ad66d;
+      --warning: #ff9f1c;
+      --gray: #6c757d;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f5f7ff;
+      color: var(--dark);
+      display: flex;
+      min-height: 100vh;
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background-color: white;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .logo i {
+      color: var(--primary);
+      font-size: 1.8rem;
+    }
+    
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .nav-menu {
+      flex: 1;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--gray);
+      transition: all 0.3s;
+    }
+    
+    .nav-item i {
+      width: 24px;
+      text-align: center;
+    }
+    
+    .nav-item:hover, .nav-item.active {
+      background-color: rgba(67, 97, 238, 0.1);
+      color: var(--primary);
+    }
+    
+    .nav-item.active {
+      font-weight: 500;
+    }
+    
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.8rem 1rem;
+      margin-top: auto;
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--danger);
+      background-color: rgba(239, 35, 60, 0.1);
+      transition: all 0.3s;
+      border: none;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    
+    .logout-btn:hover {
+      background-color: rgba(239, 35, 60, 0.2);
+    }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    
+    .header h2 {
+      font-size: 1.8rem;
+      color: var(--dark);
+    }
+    
+    .profile-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background-color: white;
+      padding: 0.6rem 1rem;
+      border-radius: 50px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .profile-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    
+    .profile-name {
+      font-weight: 500;
+    }
+    
+    .profile-role {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+    
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background-color: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+    
+    .stat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .stat-card-title {
+      font-size: 0.95rem;
+      color: var(--gray);
+    }
+    
+    .stat-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .stat-card-value {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-card-change {
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .change-up {
+      color: var(--success);
+    }
+    
+    .change-down {
+      color: var(--danger);
+    }
+    
+    /* Recent Jobs */
+    .section {
+      background-color: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+    }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+    
+    .section-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    
+    .jobs-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .jobs-table th {
+      text-align: left;
+      padding: 0.8rem 1rem;
+      font-weight: 500;
+      color: var(--gray);
+      font-size: 0.9rem;
+      border-bottom: 1px solid #e9ecef;
+    }
+    
+    .jobs-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+      vertical-align: middle;
+    }
+    
+    .job-customer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .customer-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #e9ecef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+      font-weight: 600;
+    }
+    
+    .customer-info h4 {
+      font-weight: 500;
+      margin-bottom: 0.2rem;
+    }
+    
+    .customer-info p {
+      font-size: 0.85rem;
+      color: var(--gray);
+    }
+    
+    .job-service {
+      font-weight: 500;
+    }
+    
+    .job-status {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    
+    .status-pending {
+      background-color: rgba(255, 159, 28, 0.1);
+      color: var(--warning);
+    }
+    
+    .status-accepted {
+      background-color: rgba(74, 214, 109, 0.1);
+      color: var(--success);
+    }
+    
+    .status-completed {
+      background-color: rgba(108, 117, 125, 0.1);
+      color: var(--gray);
+    }
+    
+    .job-action {
+      text-align: right;
+    }
+    
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: none;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-sm {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(67, 97, 238, 0.2);
+    }
+    
+    .btn-outline {
+      background-color: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+    
+    /* Availability Toggle */
+    .availability-toggle {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background-color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+    }
+    
+    .toggle-label {
+      font-weight: 500;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #e9ecef;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: var(--success);
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    /* Chart Container */
+    .chart-container {
+      height: 300px;
+      margin-top: 1rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      body {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        width: 100%;
+        padding: 1rem;
+      }
+      
+      .nav-menu {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+      }
+      
+      .nav-item {
+        flex: 0 0 auto;
+        white-space: nowrap;
+      }
+      
+      .logout-btn {
+        display: none;
+      }
+      
+      .main-content {
+        padding: 1.5rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .jobs-table {
+        display: block;
+        overflow-x: auto;
+      }
+      
+      .profile-badge {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <div class="sidebar">
+    <div class="logo">
+      <i class="fas fa-car"></i>
+      <h1>InstaMech</h1>
+    </div>
+    
+    <div class="nav-menu">
+      <a href="#" class="nav-item active">
+        <i class="fas fa-tachometer-alt"></i>
+        Dashboard
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-list"></i>
+        Jobs
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-map-marker-alt"></i>
+        Service Area
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-wallet"></i>
+        Earnings
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-star"></i>
+        Reviews
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-cog"></i>
+        Settings
+      </a>
+      <a href="#" class="nav-item">
+        <i class="fas fa-question-circle"></i>
+        Help
+      </a>
+    </div>
+    
+    <button class="logout-btn" onclick="logout()">
+      <i class="fas fa-sign-out-alt"></i>
+      Logout
+    </button>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="header">
+      <h2>Mechanic Dashboard</h2>
+      
+      <div class="profile-badge">
+        <div class="profile-avatar" id="profileInitials">JD</div>
+        <div>
+          <div class="profile-name" id="profileName">John Doe</div>
+          <div class="profile-role">Certified Mechanic</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Availability Toggle -->
+    <div class="availability-toggle">
+      <span class="toggle-label">Available for Jobs:</span>
+      <label class="toggle-switch">
+        <input type="checkbox" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-title">Today's Jobs</div>
+          <div class="stat-card-icon" style="background-color: rgba(67, 97, 238, 0.1); color: var(--primary);">
+            <i class="fas fa-briefcase"></i>
+          </div>
+        </div>
+        <div class="stat-card-value">5</div>
+        <div class="stat-card-change change-up">
+          <i class="fas fa-arrow-up"></i>
+          <span>2 from yesterday</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-title">Earnings</div>
+          <div class="stat-card-icon" style="background-color: rgba(74, 214, 109, 0.1); color: var(--success);">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+        </div>
+        <div class="stat-card-value">$287.50</div>
+        <div class="stat-card-change change-up">
+          <i class="fas fa-arrow-up"></i>
+          <span>15% from last week</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-title">Rating</div>
+          <div class="stat-card-icon" style="background-color: rgba(255, 159, 28, 0.1); color: var(--warning);">
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+        <div class="stat-card-value">4.8</div>
+        <div class="stat-card-change change-down">
+          <i class="fas fa-arrow-down"></i>
+          <span>0.1 from last month</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-card-title">Response Time</div>
+          <div class="stat-card-icon" style="background-color: rgba(76, 201, 240, 0.1); color: var(--accent);">
+            <i class="fas fa-clock"></i>
+          </div>
+        </div>
+        <div class="stat-card-value">18 min</div>
+        <div class="stat-card-change change-up">
+          <i class="fas fa-arrow-down"></i>
+          <span>5 min faster</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Earnings Chart -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Earnings Overview</div>
+        <a href="#" class="section-link">View All</a>
+      </div>
+      <div class="chart-container">
+        <canvas id="earningsChart"></canvas>
+      </div>
+    </div>
+    
+    <!-- Recent Jobs -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Recent Jobs</div>
+        <a href="#" class="section-link">View All</a>
+      </div>
+      
+      <table class="jobs-table">
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Service</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="job-customer">
+                <div class="customer-avatar">SM</div>
+                <div class="customer-info">
+                  <h4>Sarah Miller</h4>
+                  <p>2018 Honda Civic</p>
+                </div>
+              </div>
+            </td>
+            <td class="job-service">Flat Tire Change</td>
+            <td>1.2 miles away</td>
+            <td><span class="job-status status-pending">Pending</span></td>
+            <td class="job-action">
+              <button class="btn btn-primary btn-sm">Accept</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="job-customer">
+                <div class="customer-avatar">RJ</div>
+                <div class="customer-info">
+                  <h4>Robert Johnson</h4>
+                  <p>2020 Toyota Camry</p>
+                </div>
+              </div>
+            </td>
+            <td class="job-service">Battery Jump</td>
+            <td>0.8 miles away</td>
+            <td><span class="job-status status-accepted">Accepted</span></td>
+            <td class="job-action">
+              <button class="btn btn-outline btn-sm">Navigate</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="job-customer">
+                <div class="customer-avatar">MP</div>
+                <div class="customer-info">
+                  <h4>Maria Perez</h4>
+                  <p>2017 Ford F-150</p>
+                </div>
+              </div>
+            </td>
+            <td class="job-service">Oil Change</td>
+            <td>2.5 miles away</td>
+            <td><span class="job-status status-completed">Completed</span></td>
+            <td class="job-action">
+              <button class="btn btn-outline btn-sm">Invoice</button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="job-customer">
+                <div class="customer-avatar">TK</div>
+                <div class="customer-info">
+                  <h4>Thomas Kim</h4>
+                  <p>2019 Subaru Outback</p>
+                </div>
+              </div>
+            </td>
+            <td class="job-service">AC Repair</td>
+            <td>1.7 miles away</td>
+            <td><span class="job-status status-accepted">Accepted</span></td>
+            <td class="job-action">
+              <button class="btn btn-outline btn-sm">Navigate</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.6.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+
+  <!-- Your Firebase Config -->
+  <script src="firebase-config.js"></script>
+
+  <script>
+    // Initialize Firebase
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    // Logout function
+    function logout() {
+      auth.signOut().then(() => {
+        window.location.href = 'login.html';
+      }).catch((error) => {
+        console.error('Logout error:', error);
+      });
+    }
+    
+    // Load mechanic data
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        // Set profile info
+        document.getElementById('profileInitials').textContent = 
+          user.displayName ? user.displayName.split(' ').map(n => n[0]).join('') : 'ME';
+        document.getElementById('profileName').textContent = 
+          user.displayName || 'Mechanic';
+        
+        // Load mechanic details from Firestore
+        db.collection('mechanics').where('userId', '==', user.uid).get()
+          .then((querySnapshot) => {
+            if (!querySnapshot.empty) {
+              const mechanicData = querySnapshot.docs[0].data();
+              // Update UI with mechanic data
+              // You can add more fields as needed
+            }
+          });
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+    
+    // Initialize earnings chart
+    const ctx = document.getElementById('earningsChart').getContext('2d');
+    const earningsChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        datasets: [{
+          label: 'Earnings',
+          data: [1200, 1900, 1500, 2000, 2300, 2500],
+          backgroundColor: 'rgba(67, 97, 238, 0.7)',
+          borderColor: 'rgba(67, 97, 238, 1)',
+          borderWidth: 1,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              drawBorder: false
+            }
+          },
+          x: {
+            grid: {
+              display: false
+            }
+          }
+        }
+      }
+    });
+    
+    // Toggle availability
+    const toggle = document.querySelector('.toggle-switch input');
+    toggle.addEventListener('change', function() {
+      const isAvailable = this.checked;
+      // Update availability in Firestore
+      db.collection('mechanics').where('userId', '==', auth.currentUser.uid).get()
+        .then((querySnapshot) => {
+          if (!querySnapshot.empty) {
+            const docId = querySnapshot.docs[0].id;
+            db.collection('mechanics').doc(docId).update({
+              status: isAvailable ? 'available' : 'unavailable'
+            });
+          }
+        });
+    });
+    
+    // Simulate job acceptance (for demo)
+    document.addEventListener('click', function(e) {
+      if (e.target && e.target.textContent === 'Accept') {
+        const row = e.target.closest('tr');
+        const statusCell = row.querySelector('.job-status');
+        const actionCell = row.querySelector('.job-action');
+        
+        statusCell.textContent = 'Accepted';
+        statusCell.className = 'job-status status-accepted';
+        actionCell.innerHTML = '<button class="btn btn-outline btn-sm">Navigate</button>';
+        
+        // In a real app, you would update Firestore here
+      }
+    });
+  </script>
+</body>
+</html>
